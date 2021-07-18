@@ -3,6 +3,7 @@
 //***************************************************************************************
 
 #include "GeometryGenerator.h"
+#include <fstream>
 #include <algorithm>
 
 using namespace DirectX;
@@ -654,4 +655,50 @@ GeometryGenerator::MeshData GeometryGenerator::CreateQuad(float x, float y, floa
 	meshData.Indices32[5] = 3;
 
     return meshData;
+}
+
+GeometryGenerator::MeshData GeometryGenerator::CreateModel(const char* Path)
+{
+	MeshData meshData;
+	std::ifstream fin(Path);
+	if (!fin.is_open()) {
+		return meshData;
+	}
+
+	char ch;
+	int num;
+	//int idx = 0;
+	while ((ch = fin.peek()) && (ch != ' '))
+		fin >> ch;
+	fin >> num;
+	meshData.Vertices.reserve(num);
+	while ((ch = fin.peek()) && ch != ' ')
+		fin >> ch;
+	fin >> num;
+	meshData.Indices32.reserve(num * 3);
+	while ((fin >> ch) && ch != '{') {}
+	while ((ch = fin.peek()) && ch != '?')
+	{
+		Vertex v;
+		fin >> v.Position.x >> v.Position.y >> v.Position.z;
+		fin >> v.Normal.x >> v.Normal.y >> v.Normal.z;
+		meshData.Vertices.push_back(v);
+		ch = fin.peek();
+	}
+	//fin >> ch;
+	while ((fin >> ch) && ch != '{') {}
+	while ((ch = fin.peek()) && ch != '?')
+	{
+		fin >> num;
+		meshData.Indices32.push_back(num);
+
+		fin >> num;
+		meshData.Indices32.push_back(num);
+
+		fin >> num;
+		meshData.Indices32.push_back(num);
+	}
+
+	fin.close();
+	return meshData;
 }

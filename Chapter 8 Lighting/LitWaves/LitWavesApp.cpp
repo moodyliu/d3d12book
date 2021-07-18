@@ -414,6 +414,9 @@ void LitWavesApp::UpdateMaterialCBs(const GameTimer& gt)
 	{
 		// Only update the cbuffer data if the constants have changed.  If the cbuffer
 		// data changes, it needs to be updated for each FrameResource.
+		e.second->Roughness = sinf(gt.TotalTime());
+		e.second->NumFramesDirty = gNumFrameResources;
+
 		Material* mat = e.second.get();
 		if(mat->NumFramesDirty > 0)
 		{
@@ -461,6 +464,8 @@ void LitWavesApp::UpdateMainPassCB(const GameTimer& gt)
 
 	XMStoreFloat3(&mMainPassCB.Lights[0].Direction, lightDir);
 	mMainPassCB.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
+	/*float redValue = 1.f * sinf(gt.TotalTime());
+	mMainPassCB.Lights[0].Strength = { redValue,0.f , 0.f };*/
 
 	auto currPassCB = mCurrFrameResource->PassCB.get();
 	currPassCB->CopyData(0, mMainPassCB);
